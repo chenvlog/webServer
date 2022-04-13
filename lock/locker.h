@@ -15,6 +15,11 @@ public:
             throw std::exception();
         }
     }
+    sem(int num){
+         if(sem_init(&m_sem,0,num) != 0){//初始化一个信号量
+            throw std::exception();
+        }
+    }
     ~sem(){//释放信号量资源
         sem_destroy(&m_sem);
     }
@@ -94,6 +99,12 @@ public:
     bool signal(){//当缓冲区有东西了,就可以让消费者去争取资源
         return pthread_cond_signal(&m_cond);
     }
+
+    //我们这里定义一个广播通知所有的在等待的线程
+    bool broadcast(){
+        return pthread_cond_broadcast(&m_cond);
+    }
+    
 
 private:
     pthread_cond_t m_cond;
