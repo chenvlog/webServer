@@ -15,19 +15,18 @@
 
 using namespace std;
 
+//单例模式-->一个类只有一个对象
 class connection_pool
 {
-private:
-    /* data */
 public:
     //获取数据库连接
     MYSQL   *GetConnection();                   //获取数据库连接
     bool     ReleaseConnection(MYSQL *conn);    //释放连接
-    int      GetFreeConn();                     //获取连接
+    int      GetFreeConn();                     //获取当前空闲连接数目,对外接口
     void     DestroyPool();                     //销毁所有连接
 
-    //单例模式
-    static connection_pool *GetInstance();
+   
+    static connection_pool *GetInstance();//定义一个连接池,并返回这个链接池的指针
     void   init(string url,string User,string PassWord,string DataBaseName,int Port,int MaxConn,int close_log);
 
 private:
@@ -39,8 +38,8 @@ private:
     int m_CurConn;              //当前已使用的连接数
     int m_FreeConn;             //当前空闲的连接数
     locker lock;
-    list<MYSQL *>connList;      //连接池
-    sem reserve;           
+    list<MYSQL *>connList;      //装连接池中的连接
+    sem reserve;                //空闲的连接数
 public:
     string m_url;               //主机地址
     string m_Port;              //数据库端口号
@@ -50,6 +49,7 @@ public:
     int    m_close_log;         //日志开关
 };
 
+//用来对外管理链接池中的单个链接管理-->获取链接,关闭连接
 class connectionRAII{
 public:
     connectionRAII(MYSQL **SQL,connection_pool *connpool);
